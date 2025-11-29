@@ -1,0 +1,28 @@
+# Use an NVIDIA CUDA base image
+FROM nvcr.io/nvidia/pytorch:23.08-py3
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    poppler-utils \
+    tesseract-ocr \
+    libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy backend application and install Python dependencies
+COPY requirements.txt .
+COPY backend backend/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install LLaVA-NeXT dependencies
+# As per backend/ingestion/vision.py, the model is LlavaForConditionalGeneration
+# from transformers, which is installed via requirements.txt
+# We need to ensure torch is set up for CUDA in the base image.
+
+# Set environment variables for LLaVA
+ENV TRANSFORMERS_CACHE=/app/.cache
+ENV HF_HOME=/app/.cache
+
+# Command to run ingestion (example, actual run via script)
+# CMD python -m backend.ingestion /app/manuals --with-vision
