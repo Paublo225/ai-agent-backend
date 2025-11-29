@@ -34,7 +34,7 @@ google-api-python-client==2.151.0
 # ML/Vision - Updated for Python 3.13 compatibility
 sentence-transformers>=3.1.1
 transformers>=4.46.3
-torch>=2.6.0
+# torch>=2.6.0  # Commented out - install CPU version in Dockerfile instead
 accelerate>=1.1.1
 pymupdf>=1.24.10
 pdf2image==1.17.0
