@@ -26,3 +26,4 @@ ENV HF_HOME=/app/.cache
 
 # Command to run ingestion (example, actual run via script)
 # CMD python -m backend.ingestion /app/manuals --with-vision
+

@@ -1,0 +1,50 @@
+# Create this file at: /Users/pavel/Desktop/Projects/ai-agent/.railwayignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Docker
+.dockerignore
+
+# Large data files (if you don't need them at runtime)
+manuals/
+*.pdf
+
+# Git
+.git/
+
+# Monitoring/logs
+*.log
+logs/
+
+# Test files
+tests/
+*.test.py
+__pycache__/
+
+# Build artifacts
+*.whl
+*.egg-info/

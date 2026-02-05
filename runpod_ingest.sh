@@ -14,3 +14,4 @@ echo "Starting PDF ingestion with vision analysis..."
 python -m backend.ingestion manuals --with-vision --state-file .ingestion/runpod_state.json
 
 echo "Ingestion complete!"
+
