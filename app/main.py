@@ -156,9 +156,11 @@ async def conversation_history(session_id: str) -> List[ChatMessage]:
 async def websocket_endpoint(websocket: WebSocket) -> None:
     await websocket.accept()
     session_id = str(uuid.uuid4())
+    logger.info(f"WebSocket connected session={session_id}")
     try:
         while True:
             data = await websocket.receive_json()
+            logger.info(f"WebSocket received message session={session_id}: {str(data)[:100]}")
             request = ChatRequest(
                 session_id=session_id,
                 message=data.get("message", ""),
@@ -166,6 +168,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 metadata=data.get("metadata", {}),
             )
             response = await agent.run(request)
+            logger.info(f"Agent run complete session={session_id}, sending response")
             await websocket.send_json(ChatResponse(session_id=session_id, messages=[response], latency_ms=0).model_dump(mode='json'))
     except WebSocketDisconnect:
         logger.info("WebSocket disconnected (session=%s)", session_id)
