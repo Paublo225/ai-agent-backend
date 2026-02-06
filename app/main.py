@@ -55,6 +55,7 @@ class LocalEchoModel:
 def _build_agent(settings: Settings) -> AgentOrchestrator:
     # Prioritize Gemini if GEMINI_API_KEY is set
     if settings.gemini_api_key:
+        logger.info("Using Google Gemini models")
         def build_model(model_name: str, temperature: float) -> object:
             return ChatGoogleGenerativeAI(
                 google_api_key=settings.gemini_api_key,
@@ -66,6 +67,7 @@ def _build_agent(settings: Settings) -> AgentOrchestrator:
         fast_llm = build_model("gemini-2.5-flash", 0.3)
         extraction_llm = build_model("gemini-1.5-flash", 0.0)
     elif settings.groq_api_key:
+        logger.info("Using Groq models")
         def build_model(model_name: str, temperature: float) -> object:
             return ChatGroq(
                 groq_api_key=settings.groq_api_key,
@@ -76,6 +78,7 @@ def _build_agent(settings: Settings) -> AgentOrchestrator:
         fast_llm = build_model("llama-3.1-8b-instant", 0.3)
         extraction_llm = build_model("qwen-2.5-7b-instruct", 0.0)
     else:
+        logger.warning("No API keys found (GEMINI_API_KEY or GROQ_API_KEY). Using LocalEchoModel.")
         primary_llm = LocalEchoModel()
         fast_llm = LocalEchoModel()
         extraction_llm = LocalEchoModel()
@@ -104,6 +107,11 @@ def _build_agent(settings: Settings) -> AgentOrchestrator:
 
 
 agent = _build_agent(settings)
+
+
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "AI Agent Backend is running"}
 
 
 @app.get("/health", response_model=HealthResponse)

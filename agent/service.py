@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from dataclasses import dataclass
 from textwrap import dedent
 from typing import Any, List
@@ -15,6 +16,9 @@ from backend.agent.prompts import RESPONSE_TEMPLATE, SYSTEM_PROMPT
 from backend.app.models import ChatMessage, ChatRequest
 from backend.rag.pipeline import RetrievalPipeline
 from backend.tools.router import ToolRouter
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -38,6 +42,7 @@ class AgentOrchestrator:
         )
 
     async def run(self, request: ChatRequest) -> ChatMessage:
+        logger.info(f"Processing chat request session_id={request.session_id}")
         session_id = request.session_id or "temp"
         history = self.context.memory.fetch(session_id)
         history_str = self._format_history(history)
@@ -46,8 +51,11 @@ class AgentOrchestrator:
 
         # 1. Start Retrieval
         if self.context.retrieval_pipeline:
+            logger.info("Starting retrieval pipeline")
             retrieved_chunks = await self.context.retrieval_pipeline.retrieve(query=request.message)
+            logger.info(f"Retrieval complete. Found {len(retrieved_chunks)} chunks")
         else:
+            logger.info("Retrieval pipeline skipped (not configured)")
             retrieved_chunks = []
 
         # 2. Check if we need web search (Fallback Logic)
@@ -55,15 +63,19 @@ class AgentOrchestrator:
         
         # FALLBACK: If no manuals found, force web search
         if not retrieved_chunks: 
+            logger.info("No manuals found, defaulting to web search")
             should_search = True
         elif await self._should_search(request.message): # Or if the question inherently needs web (e.g. "price")
+            logger.info("Query classifier triggered web search")
             should_search = True
 
         # 3. Execute Search if needed
         tool_events = []
         if should_search:
             # Route to search tool
+            logger.info("Executing tool routing for search")
             tool_events = await self.context.tools.route(message=request.message, metadata={"requires_search": True})
+            logger.info(f"Tool execution complete. Events: {len(tool_events)}")
 
         # 4. Format Context (Combine Manuals + Web)
         context_block = self._format_context(retrieved_chunks, tool_events)
@@ -75,7 +87,9 @@ class AgentOrchestrator:
         )
 
         model = self.context.model_router.pick(request)
+        logger.info(f"Invoking LLM model: {type(model).__name__}")
         response = await model.ainvoke(prompt_messages)
+        logger.info("LLM invocation complete")
 
         message = ChatMessage(
             role="assistant",
