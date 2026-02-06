@@ -27,7 +27,14 @@ from backend.tools.search import SearchTool
 from backend.tools.vision import VisionTool
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO)
+
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Application startup: Logging initialized")
+    print("Application startup: Print initialized")
+
 
 app = FastAPI(title=settings.app_name, version="0.1.0")
 
@@ -154,6 +161,8 @@ async def conversation_history(session_id: str) -> List[ChatMessage]:
 
 @app.websocket("/api/ws/chat")
 async def websocket_endpoint(websocket: WebSocket) -> None:
+    print("WS Endpoint hit!")
+    logger.info("WS Endpoint hit (logger)")
     await websocket.accept()
     session_id = str(uuid.uuid4())
     logger.info(f"WebSocket connected session={session_id}")
