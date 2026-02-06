@@ -42,7 +42,6 @@ class RetrievalPipeline:
         self.top_k = top_k
         self.document_store = PineconeDocumentStore(
             api_key=settings.pinecone_api_key,
-            environment=settings.pinecone_environment,
             index=settings.pinecone_index,
             namespace=settings.pinecone_index,
             dimension=768,
