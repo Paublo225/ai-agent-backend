@@ -43,7 +43,8 @@ Pillow>=11.0.0
 unstructured>=0.15.0
 opencv-python-headless>=4.10.0.84
 scikit-learn>=1.5.2
-numpy<2.0.0
+numpy<2.0.0; python_version < "3.12"
+numpy>=2.0.0; python_version >= "3.12"
 tf-keras
 
 # Misc
