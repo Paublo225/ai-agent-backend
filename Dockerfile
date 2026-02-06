@@ -18,7 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY requirements.txt ./backend/
 
-# Install PyTorch CPU-only version first (much smaller than GPU version - ~500MB vs 2.5GB)
+# Pin numpy first so torch and all scientific packages share the same binary
+RUN pip install --no-cache-dir numpy==2.0.2
+
+# Install PyTorch CPU-only version (much smaller than GPU version - ~500MB vs 2.5GB)
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
 # Install remaining requirements
