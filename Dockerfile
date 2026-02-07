@@ -3,7 +3,8 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HF_HOME=/workspace/models_cache
 
 WORKDIR /workspace
 
@@ -23,6 +24,10 @@ RUN pip install --no-cache-dir -r ./backend/requirements.txt
 
 # Install PyTorch CPU-only AFTER so it uses the already-installed numpy
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# Pre-download AI models to bake them into the image
+COPY download_models.py ./backend/
+RUN python ./backend/download_models.py
 
 # Remove build dependencies to save space
 RUN apt-get purge -y --auto-remove build-essential git \
