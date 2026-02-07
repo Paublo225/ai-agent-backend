@@ -8,6 +8,7 @@ from typing import List
 from haystack import Pipeline
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack.components.rankers import SentenceTransformersSimilarityRanker
+from haystack.utils import Secret
 from haystack_integrations.document_stores.pinecone import PineconeDocumentStore
 from haystack_integrations.components.retrievers.pinecone import PineconeEmbeddingRetriever
 
@@ -41,7 +42,7 @@ class RetrievalPipeline:
     def __init__(self, top_k: int = 5) -> None:
         self.top_k = top_k
         self.document_store = PineconeDocumentStore(
-            api_key=settings.pinecone_api_key,
+            api_key=Secret.from_token(settings.pinecone_api_key),
             index=settings.pinecone_index,
             namespace=settings.pinecone_index,
             dimension=768,
