@@ -7,7 +7,7 @@ from typing import List
 
 from haystack import Pipeline
 from haystack.components.embedders import SentenceTransformersTextEmbedder
-from haystack.components.rankers import TransformersSimilarityRanker
+from haystack.components.rankers import SentenceTransformersSimilarityRanker
 from haystack_integrations.document_stores.pinecone import PineconeDocumentStore
 from haystack_integrations.components.retrievers.pinecone import PineconeEmbeddingRetriever
 
@@ -57,13 +57,19 @@ class RetrievalPipeline:
         )
         self.pipeline.add_component(
             "ranker",
-            TransformersSimilarityRanker(model="cross-encoder/ms-marco-MiniLM-L-6-v2", top_k=top_k),
+            SentenceTransformersSimilarityRanker(model="cross-encoder/ms-marco-MiniLM-L-6-v2", top_k=top_k),
         )
         self.pipeline.connect("text_embedder.embedding", "retriever.query_embedding")
         self.pipeline.connect("retriever", "ranker")
 
     async def retrieve(self, query: str) -> List[RetrievalResult]:
-        result = await asyncio.to_thread(self.pipeline.run, data={"text_embedder": {"text": query}})
+        result = await asyncio.to_thread(
+            self.pipeline.run,
+            data={
+                "text_embedder": {"text": query},
+                "ranker": {"query": query},
+            },
+        )
         documents = result["ranker"]["documents"]
         return [self._to_result(doc) for doc in documents]
 
