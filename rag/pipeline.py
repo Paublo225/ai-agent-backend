@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 logger.info("Loading RAG pipeline module (build: 2026-02-07-v2)")
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack.components.rankers import SentenceTransformersSimilarityRanker
-from haystack.utils import Secret
 from haystack_integrations.document_stores.pinecone import PineconeDocumentStore
 from haystack_integrations.components.retrievers.pinecone import PineconeEmbeddingRetriever
 
