@@ -26,18 +26,14 @@ from backend.tools.router import ToolRouter
 from backend.tools.search import SearchTool
 from backend.tools.vision import VisionTool
 
+# 1. Setup Logging First
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Application startup: Logging initialized")
-    print("Application startup: Print initialized")
-
-
+# 2. Create App Instance
 app = FastAPI(title=settings.app_name, version="0.1.0")
 
+# 3. Configure Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[str(origin) for origin in settings.allowed_origins] or ["*"],
@@ -45,6 +41,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 4. Startup Events
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Application startup: Logging initialized")
+    print("Application startup: Print initialized")
 
 _langsmith = setup_observability()
 _registry = CollectorRegistry()
@@ -80,6 +82,7 @@ def _build_agent(settings: Settings) -> AgentOrchestrator:
                 groq_api_key=settings.groq_api_key,
                 model_name=model_name,
                 temperature=temperature,
+                convert_system_message_to_human=True,
             )
         primary_llm = build_model("llama-3.1-70b-versatile", 0.1)
         fast_llm = build_model("llama-3.1-8b-instant", 0.3)
