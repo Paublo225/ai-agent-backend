@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from dataclasses import dataclass
 from typing import List
 
 from haystack import Pipeline
+
+logger = logging.getLogger(__name__)
+logger.info("Loading RAG pipeline module (build: 2026-02-07-v2)")
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack.components.rankers import SentenceTransformersSimilarityRanker
 from haystack.utils import Secret
